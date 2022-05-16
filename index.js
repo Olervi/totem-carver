@@ -6,6 +6,8 @@ const { Routes } = require ('discord-api-types/v9');
 
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+	partials: ["MESSAGE", "CHANNEL", "REACTION" ]
+	
 });
 
 
@@ -158,6 +160,13 @@ for (const folder of triggerFolders) {
 		client.triggers.set(trigger.name, trigger);
 	}
 }
+
+client.on('ready', () => {
+	if (command === 'reactionrole') {
+        client.commands.get('reactionrole').execute(message, args, Discord, client);
+    } 
+  
+});
 
 // Login into your client application with bot's token.
 
