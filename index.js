@@ -14,6 +14,13 @@ const client = new Client({
 const eventFiles = readdirSync("./events")
 	.filter((file) => file.endsWith(".js"));
 
+const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+ 
+    client.commands.set(command.name, command);
+}
+
 // Loop through all files and execute the event when it is actually emmited.
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
