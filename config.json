@@ -1,7 +1,9 @@
 {
   "prefix": "$",
-  "token":"NzQyMzc4NjM4NjE5NzA1NDI1.XzFP_A.BRcZyh9UOwCK0DdR_zhoa0oFnC0",
+  "token":"NzQyMzc4NjM4NjE5NzA1NDI1.GlU1M9.nsS0Tz1Y5r_LgNc9v9CmMWaXMRrdhc4he3ZsNI",
   "owner":"542678527879675926",
   "client_id":"742378638619705425",
-  "test_guild_id":"972472318804779008"
+  "test_guild_id":"972472318804779008",
+  "AppClientID":"dk6n53is38k02lfusqllqrj6xytjft",
+  "AppSecretToken": "0ntzfamrgpt18bzhnzxnh561s3iix8"
 }

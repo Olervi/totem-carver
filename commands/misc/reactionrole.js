@@ -1,24 +1,42 @@
-module.exports = {
+const { MessageEmbed } = require("discord.js");
+
+
+
+module.exports =  {
     name: 'reactionrole',
     description: "Sets up a reaction role message!",
-    async execute(message, args, Discord, client) {
-        const channel = 'YOUR_CHANNEL';
-        const yellowTeamRole = message.guild.roles.cache.find(role => role.name === "YOUR_ROLE");
-        const blueTeamRole = message.guild.roles.cache.find(role => role.name === "YOUR_ROLE");
+        /** 
+        * @param {Object} message 
+        * @param {String[]} args
+        * @type {Object}
+		* @description Embed of Help command for a specific command.
+        */
+    execute(client, message, Discord, args) {
+        const channel = '974258504862945372';
+        
+        const yellowTeamRole = (role => role.name === "Testgelb");
+     //   const blueTeamRole = message.guild.roles.cache.find(role => role.name === "Testblau");
+        const blueTeamRole = (role => role.name === "Testblau");
+
+        const yellowTeamEmoji = client.emojis.chace.find(emoji => emoji.name === "thumbup");
+        const blueTeamEmoji = client.emojis.chace.find(emoji => emoji.name === "thumbdown");
  
-        const yellowTeamEmoji = 'YOUR_EMOJI';
-        const blueTeamEmoji = 'YOUR_EMOJI';
- 
-        let embed = new Discord.MessageEmbed()
-            .setColor('#e42643')
-            .setTitle('Choose a team to play on!')
-            .setDescription('Choosing a team will allow you to interact with your teammates!\n\n'
-                + `${yellowTeamEmoji} for yellow team\n`
-                + `${blueTeamEmoji} for blue team`);
- 
-        let messageEmbed = await message.channel.send(embed);
-        messageEmbed.react(yellowTeamEmoji);
-        messageEmbed.react(blueTeamEmoji);
+        let embed = new MessageEmbed()
+        .setColor('#e42643')
+        .setTitle('Choose a team to play on!')
+        .setDescription('Choosing a team will allow you to interact with your teammates!\n\n'
+            + `${yellowTeamEmoji} for yellow team\n`
+            + `${blueTeamEmoji} for blue team`); 
+        //const channel = require ();
+        //let messageEmbed = await message.channel.send(embed);
+        message.channel.send({ embeds: [embed] }).then(embedMessage => {
+            embedMessage.react(yellowTeamEmoji)
+            embedMessage.react(blueTeamEmoji);
+            
+        }) ;
+        //embed.react(yellowTeamEmoji);
+        //embed.react(yellowTeamEmoji);
+        //embed.react(blueTeamEmoji);
  
         client.on('messageReactionAdd', async (reaction, user) => {
             if (reaction.message.partial) await reaction.message.fetch();

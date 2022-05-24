@@ -1,20 +1,72 @@
 const { readdirSync } = require ("fs");
 const { Client, Collection, Intents } = require ("discord.js");
-const { token, client_id, test_guild_id } = require ("./config.json");
+const { token, client_id, test_guild_id, prefix, AppClientID, AppSecretToken } = require ("./config.json");
 const { REST } = require ("@discordjs/rest");
 const { Routes } = require ('discord-api-types/v9');
+const Discord = require('discord.js');
+const {MessageEmbed}= require ('discord.js');
+const { ContextMenuCommandBuilder } = require("@discordjs/builders");
+const { default: TwitchApi } = require("node-twitch");
+const TwitchAPI = require('node-twitch').default
 
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
 	partials: ["MESSAGE", "CHANNEL", "REACTION" ]
 	
 });
 
 
+// Twitch Auto Announcer
+const twitch = new TwitchApi({
+	client_id: AppClientID,
+	client_secret: AppSecretToken
+})
+let IsLiveMemory = false
+const run = async function Run() {
+	await twitch.getStreams({ channel: "olervi" }).then(async data => {
+		const r = data.data[0]
+		let ThisGuildOnly = client.guilds.cache.get("972472318804779008")
+		const ChannelAnnounceLive = ThisGuildOnly.channels.cache.find(x => x.id === "974259006325542972")
+
+		if (r !== undefined) {
+			if (r.type === "live") {
+				if (IsLiveMemory === false || IsLiveMemory === undefined) {
+					IsLiveMemory = true
+				}	else if (IsLiveMemory === true) {
+				}	else {}
+			}	else {
+                if (IsLiveMemory === true) {
+                    IsLiveMemory = false
+                } else {}
+            }
+		}	else {
+            if (IsLiveMemory === true) {
+                IsLiveMemory = false
+            } else {
+            }
+        }
+	}
+	)
+}
+setInterval(
+	run, 15000)
+
+
+
+client.commands = new Collection();
+client.slashCommands = new Collection();
+client.buttonCommands = new Collection();
+client.selectCommands = new Collection();
+client.contextCommands = new Collection();
+client.cooldowns = new Collection();
+client.triggers = new Collection();
+
+
+
 const eventFiles = readdirSync("./events")
 	.filter((file) => file.endsWith(".js"));
 
-const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+const commandFiles = readdirSync('./commands/').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
  
@@ -36,13 +88,7 @@ for (const file of eventFiles) {
 
 
 
-client.commands = new Collection();
-client.slashCommands = new Collection();
-client.buttonCommands = new Collection();
-client.selectCommands = new Collection();
-client.contextCommands = new Collection();
-client.cooldowns = new Collection();
-client.triggers = new Collection();
+
 
 //Registration Msg-based Commands
 
@@ -58,7 +104,7 @@ for (const folder of commandFolders) {
 		client.commands.set(command.name, command);
 	}
 }
-
+ 
 
 //Registration of Slash-Commands
 
@@ -168,9 +214,14 @@ for (const folder of triggerFolders) {
 	}
 }
 
-client.on('ready', () => {
-	if (command === 'reactionrole') {
-        client.commands.get('reactionrole').execute(message, args, Discord, client);
+client.on('message', message => {
+ 
+    if (!message.content.startsWith('$') || message.author.bot) return;
+ 
+    const args = message.content.slice(prefix.length).split(/ +/);
+    const command = args.shift().toLowerCase();
+    if (command === 'reactionrole') {
+        client.commands.get('reactionrole').execute(client, message, Discord, args);
     } 
   
 });
