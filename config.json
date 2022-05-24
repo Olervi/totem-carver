@@ -5,5 +5,9 @@
   "client_id":"742378638619705425",
   "test_guild_id":"972472318804779008",
   "AppClientID":"dk6n53is38k02lfusqllqrj6xytjft",
-  "AppSecretToken": "0ntzfamrgpt18bzhnzxnh561s3iix8"
+  "AppSecretToken": "0ntzfamrgpt18bzhnzxnh561s3iix8",
+  "mc": "Minecraft",
+  "lol": "League of Legends",
+  "amongus": "Among Us",
+  "valorant": "Valorant"
 }

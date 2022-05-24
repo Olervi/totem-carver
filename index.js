@@ -7,6 +7,8 @@ const Discord = require('discord.js');
 const {MessageEmbed}= require ('discord.js');
 const { ContextMenuCommandBuilder } = require("@discordjs/builders");
 const { default: TwitchApi } = require("node-twitch");
+const { config } = require("process");
+const { channel } = require("diagnostics_channel");
 const TwitchAPI = require('node-twitch').default
 
 const client = new Client({
@@ -61,7 +63,49 @@ client.contextCommands = new Collection();
 client.cooldowns = new Collection();
 client.triggers = new Collection();
 
+//RPC
 
+setInterval(() => {
+	const activities = [
+	  `$help | ${client.guilds.cache.reduce(
+		(a, g) => a + g.memberCount,
+		0
+	  )} Mitglieder`
+	];
+	let activity = activities[Math.floor(Math.random() * activities.length)];
+	client.user.setPresence({
+	  activity: { name: activity },
+	  status: 'dnd'
+	});
+  }, 15000);
+
+
+//Join Msg
+
+client.on('guildMemberAdd', (member) => {
+	var welcomechannel = config.welcomechannel;
+	const welcomeChannel = member.guild.channels.cache.find(
+		(channel) => channel.name === `${welcomechannel}`
+	);
+	var embed = new Discord.MessageEmbed()
+	.setDescription(`**${member} trat den Schamanen bei`)
+	.setColor(color)
+	.setTimestamp()
+	.footer(client.user.username, member.user.displayAvatarURL());
+	welcomeChannel.send(embed); 
+});
+client.on('guildMemberRemove', (member) => {
+	var welcomechannel = config.welcomechannel;
+	const welcomeChannel = member.guild.channels.cache.find(
+		(channel) => channel.name === `${welcomechannel}`
+	);
+	var embed = new Discord.MessageEmbed()
+	.setDescription(`**${member} traf sich mit einem Verschwindungszauber`)
+	.setColor(color)
+	.setTimestamp()
+	.footer(client.user.username, member.user.displayAvatarURL());
+	welcomeChannel.send(embed); 
+});
 
 const eventFiles = readdirSync("./events")
 	.filter((file) => file.endsWith(".js"));
@@ -226,6 +270,65 @@ client.on('message', message => {
   
 });
 
+
+//Channel creation
+
+var amount = []; 
+client.on('voiceStateUpdate', async (oldMember, newMember) => {
+	let category = client.channels.cache.get('978715909906657350')
+	let voiceCh = client.channels.cache.get('978716141931364423')
+	if (newMember.channel == voiceCh) {
+		await newMember.guilds.channels
+			.create(`${newMember.member.displayName}'s Channel`, {
+				type: 'voice',
+			parent: category,
+			permissionOverwrites: [
+				{
+					id: '972472318804779008', //@everyone
+					deny: ['CONNECT']
+				},
+				{
+					id: '978717484851011584', //Muted
+					deny: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM']
+				},
+				{
+					id: newMember.id, //Person
+					allow: [
+						'VIEW_CHANNEL',
+						'CONNECT',
+						'MANAGE_CHANNELS',
+						'MANAGE_ROLES'
+					]
+				},			
+				{
+					id: newMember.id, //Member
+					allow: [
+						'VIEW_CHANNEL',
+						'CONNECT',
+						'SPEAK',
+						'STREAM',
+						//'PRIORITY_SPEAKER',
+						'MANAGE_CHANNELS'
+					]
+				}
+			
+			]
+			})
+		.then(async (channel) => {
+		amount.push({ newID: channel.id, guild: channel.guild });
+		await newMember.setChannel(channel.id);
+		});
+	}
+	if (amount.length > 0)
+	for (let i = 0; i < amount.length; i++) {
+		let ch = client.channels.cache.get(amount[i].newID);
+		if (ch.members.size === 0) {
+			await ch.delete();
+			return amount.splice(i, 1);
+		}
+		
+	}
+});
 // Login into your client application with bot's token.
 
 client.login(token);
