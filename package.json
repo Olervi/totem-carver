@@ -13,6 +13,7 @@
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",
     "discord-api-types": "^0.22.0",
+    "discord-rich-presence": "^0.0.8",
     "discord.js": "^13.6.0",
     "node-twitch": "^0.4.5"
   }
