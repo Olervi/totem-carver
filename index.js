@@ -29,13 +29,28 @@ const client = new Client({
 });
 
 // Twitch Auto Announcer
+
+let channelName = 0;
+
 const twitch = new TwitchApi({
   client_id: AppClientID,
   client_secret: AppSecretToken,
 });
+for (let i = 0; i < 4; i++) {
+if (i = 0) {
+  channelName = 'olervi'
+} else if (i = 1) {
+  channelName = 'ChannelName2'
+} else if (i = 2) {
+  channelName = 'ChannelName3'
+} else if (i = 3) {
+  channelName = 'ChannelName4'
+} else if (i = 4) {
+  channelName= 'ChannelName4'
+}
 let IsLiveMemory = false;
 const run = async function Run() {
-  await twitch.getStreams({ channel: 'olervi' }).then(async (data) => {
+  await twitch.getStreams({ channel: channelName }).then(async (data) => {
     const r = data.data[0];
     let ThisGuildOnly = client.guilds.cache.get('972472318804779008');
     const ChannelAnnounceLive = ThisGuildOnly.channels.cache.find(
@@ -63,6 +78,8 @@ const run = async function Run() {
     }
   });
 };
+};
+
 setInterval(run, 15000);
 
 client.commands = new Collection();
