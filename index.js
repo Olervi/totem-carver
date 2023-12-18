@@ -1,5 +1,5 @@
 const { readdirSync } = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, Intents, EmbedBuilder, ChannelType, GuildMember} = require('discord.js');
 const {
   token,
   client_id,
@@ -7,7 +7,10 @@ const {
   prefix,
   AppClientID,
   AppSecretToken,
-  welcomechannel,
+  welcome_channel,
+  createVcC,
+  createVc,
+  guildID
 } = require('./config.json');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -30,55 +33,34 @@ const client = new Client({
 
 // Twitch Auto Announcer
 
-let channelName = 0;
+let channelName = 'olervi';
 
 const twitch = new TwitchApi({
   client_id: AppClientID,
   client_secret: AppSecretToken,
 });
-for (let i = 0; i < 4; i++) {
-if (i = 0) {
-  channelName = 'olervi'
-} else if (i = 1) {
-  channelName = 'ChannelName2'
-} else if (i = 2) {
-  channelName = 'ChannelName3'
-} else if (i = 3) {
-  channelName = 'ChannelName4'
-} else if (i = 4) {
-  channelName= 'ChannelName4'
-}
+
 let IsLiveMemory = false;
 const run = async function Run() {
   await twitch.getStreams({ channel: channelName }).then(async (data) => {
     const r = data.data[0];
-    let ThisGuildOnly = client.guilds.cache.get('972472318804779008');
-    const ChannelAnnounceLive = ThisGuildOnly.channels.cache.find(
-      (x) => x.id === '974259006325542972'
-    );
+    let ThisGuildOnly = client.guilds.cache.get('1186250191393787934');
+    const ChannelAnnounceLive = ThisGuildOnly.channels.cache.get('1186251892515422258')
 
     if (r !== undefined) {
       if (r.type === 'live') {
         if (IsLiveMemory === false || IsLiveMemory === undefined) {
           IsLiveMemory = true;
-        } else if (IsLiveMemory === true) {
-        } else {
-        }
-      } else {
-        if (IsLiveMemory === true) {
+        } else if (IsLiveMemory === true) {} else {}
+        } else if (IsLiveMemory === true){
           IsLiveMemory = false;
-        } else {
-        }
-      }
-    } else {
-      if (IsLiveMemory === true) {
+      } else {}
+    } else if (IsLiveMemory === true){
         IsLiveMemory = false;
-      } else {
-      }
-    }
+      } else {}
   });
-};
-};
+}
+
 
 setInterval(run, 15000);
 
@@ -89,49 +71,21 @@ client.selectCommands = new Collection();
 client.contextCommands = new Collection();
 client.cooldowns = new Collection();
 client.triggers = new Collection();
-
-//Rich Presence
-
-client.on('ready', () => {
-  const activity = [`$help | `];
-  let activities = activity[Math.floor(Math.random() * activity.length)];
-  client.user.setPresence({
-    activities: [{ name: activities }],
-    status: 'idle',
-  });
-  console.log('Rich Presence started');
-});
-
-//Join Msg
-
-client.on('guildMemberAdd', (member) => {
-  var Welcomechannel = welcomechannel;
-  const welcomeChannel = member.guild.channels.cache.find(
-    (channel) => channel.name === `${Welcomechannel}`
-  );
-  var embed = new Discord.MessageEmbed()
-    .setDescription(`**${member} trat den Schamanen bei`)
-    .setColor(color)
-    .setTimestamp()
-    .footer(client.user.username, member.user.displayAvatarURL());
-  welcomeChannel.send(embed);
-  console.log('Member +');
-});
 client.on('guildMemberRemove', (member) => {
-  var Welcomechannel = welcomechannel;
-  const welcomeChannel = member.guild.channels.cache.find(
-    (channel) => channel.name === `${Welcomechannel}`
+  let Welcome_channel = welcome_channel;
+  const welcomeChannel = client.channels.cache.find(
+    (channel) => channel.name === `${Welcome_channel}`
   );
-  var embed = new Discord.MessageEmbed()
+  let embed = new EmbedBuilder()
     .setDescription(`**${member} traf sich mit einem Verschwindungszauber`)
-    .setColor(color)
+    .setColor("GREEN")
     .setTimestamp()
-    .footer(client.user.username, member.user.displayAvatarURL());
-  welcomeChannel.send(embed);
-  console.log('Member -');
+    .setFooter(client.user.username, member.user.displayAvatarURL());
+  Welcome_channel.send(embed);
+  console.log('Member '+ client.user.username + 'left');
 });
 
-//Rerading event files
+//Rereading event files
 const eventFiles = readdirSync('./events').filter((file) =>
   file.endsWith('.js')
 );
@@ -245,6 +199,9 @@ const commandJsonData = [
 (async () => {
   try {
     console.log('Started refreshing application (/) commands.');
+    const guild = await client.guilds.fetch(guildID);
+
+    await guild.commands.set(commandJsonData);
 
     await rest.put(
       /**
@@ -292,24 +249,59 @@ client.on('message', (message) => {
 });
 
 //Channel creation
+let amount = [];
+client.on('voiceStateUpdate', async(oldMember, newMember) => {
+  const category = createVcC;
+  if (newMember.channel === createVc){
+    await newMember.guild.channels.create(
+      `${newMember.member.displayName}'s Channel`, {
+        type: ChannelType.GuildVoice,
+          permissionOverwrites: [
+            {
+              id: '1186250191393787934', //@everyone
+              deny: ['CONNECT'],
+            },
+            {
+              id: newMember.id, //Member
+              allow: [
+                'VIEW_CHANNEL',
+                'CONNECT',
+                'SPEAK',
+                'STREAM',
+                //'PRIORITY_SPEAKER',
+                'MANAGE_CHANNELS',
+              ],
+            },
+          ],
+      }).then(async (channel) => {
+      amount.push({ newID: channel.id, guild: channel.guild });
+      await newMember.setChannel(channel.id);
+    });
+  }
+  if (amount.length > 0)
+    for (let i = 0; i < amount.length; i++) {
+      let ch = client.channels.cache.get(amount[i].newID);
+      if (!ch.members.cache.hasAny(GuildMember)) {
+        await ch.delete;
+        return amount.splice(i, 1);
+      }
+    }
+})
 
-var amount = [];
+
+
+
 client.on('voiceStateUpdate', async (oldMember, newMember) => {
   let category = client.channels.cache.get('978715909906657350');
   let voiceCh = client.channels.cache.get('978716141931364423');
-  if (newMember.channel == voiceCh) {
-    await newMember.guilds.channels
-      .create(`${newMember.member.displayName}'s Channel`, {
-        type: 'voice',
+  if (newMember.channel === voiceCh) {
+    await newMember.guild.channels
+        .guild.channels.create(`${newMember.member.displayName}'s Channel`, {
         parent: category,
         permissionOverwrites: [
           {
-            id: '972472318804779008', //@everyone
+            id: '1186250191393787934', //@everyone
             deny: ['CONNECT'],
-          },
-          {
-            id: '978717484851011584', //Muted
-            deny: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM'],
           },
           {
             id: newMember.id, //Person
@@ -337,8 +329,7 @@ client.on('voiceStateUpdate', async (oldMember, newMember) => {
         amount.push({ newID: channel.id, guild: channel.guild });
         await newMember.setChannel(channel.id);
       });
-  }
-  if (amount.length > 0)
+  }  if (amount.length > 0)
     for (let i = 0; i < amount.length; i++) {
       let ch = client.channels.cache.get(amount[i].newID);
       if (ch.members.size === 0) {

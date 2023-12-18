@@ -1,5 +1,5 @@
 {
-  "name": "team-smiles-manager",
+  "name": "totem-carver",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,9 +12,11 @@
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",
+    "diagnostics_channel": "^1.1.0",
     "discord-api-types": "^0.22.0",
     "discord-rich-presence": "^0.0.8",
     "discord.js": "^13.6.0",
-    "node-twitch": "^0.4.5"
+    "node-twitch": "^0.4.5",
+    "process": "^0.11.10"
   }
 }
