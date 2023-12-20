@@ -20,6 +20,6 @@ module.exports = {
 		await interaction.reply({
 			content: "I am a sample message context menu.",
 		});
-		return;
+
 	},
 };

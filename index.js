@@ -188,39 +188,20 @@ for (const module of selectMenus) {
     client.selectCommands.set(command.id, command);
   }
 }
-
-const rest = new REST({ version: '10' }).setToken(token);
-
 const commandJsonData = [
   ...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
   ...Array.from(client.contextCommands.values()).map((c) => c.data),
 ];
-
+const rest = new REST().setToken(token);
 (async () => {
   try {
-    console.log('Started refreshing application (/) commands.');
-    const guild = await client.guilds.fetch(guildID);
-
-    await guild.commands.set(commandJsonData);
-
+    console.log('Started refreshing (/) commands');
     await rest.put(
-      /**
-			 * Here we are sending to discord our slash commands to be registered.
-					There are 2 types of commands, guild commands and global commands.
-					Guild commands are for specific guilds and global ones are for all.
-					In development, you should use guild commands as guild commands update
-					instantly, whereas global commands take upto 1 hour to be published. To
-					deploy commands globally, replace the line below with:
-				Routes.applicationCommands(client_id)
-			 */
-
-      Routes.applicationGuildCommands(client_id, test_guild_id),
-      { body: commandJsonData }
-    );
-
-    console.log('Successfully reloaded application (/) commands.');
-  } catch (error) {
-    console.error(error);
+        Routes.applicationGuildCommands(client_id, test_guild_id),
+        {body: commandJsonData}
+    )
+  } catch (e) {
+    console.error('Error during command registration:', e);
   }
 })();
 
@@ -286,58 +267,16 @@ client.on('voiceStateUpdate', async(oldMember, newMember) => {
         return amount.splice(i, 1);
       }
     }
-})
-
-
-
-
-client.on('voiceStateUpdate', async (oldMember, newMember) => {
-  let category = client.channels.cache.get('978715909906657350');
-  let voiceCh = client.channels.cache.get('978716141931364423');
-  if (newMember.channel === voiceCh) {
-    await newMember.guild.channels
-        .guild.channels.create(`${newMember.member.displayName}'s Channel`, {
-        parent: category,
-        permissionOverwrites: [
-          {
-            id: '1186250191393787934', //@everyone
-            deny: ['CONNECT'],
-          },
-          {
-            id: newMember.id, //Person
-            allow: [
-              'VIEW_CHANNEL',
-              'CONNECT',
-              'MANAGE_CHANNELS',
-              'MANAGE_ROLES',
-            ],
-          },
-          {
-            id: newMember.id, //Member
-            allow: [
-              'VIEW_CHANNEL',
-              'CONNECT',
-              'SPEAK',
-              'STREAM',
-              //'PRIORITY_SPEAKER',
-              'MANAGE_CHANNELS',
-            ],
-          },
-        ],
-      })
-      .then(async (channel) => {
-        amount.push({ newID: channel.id, guild: channel.guild });
-        await newMember.setChannel(channel.id);
-      });
-  }  if (amount.length > 0)
-    for (let i = 0; i < amount.length; i++) {
-      let ch = client.channels.cache.get(amount[i].newID);
-      if (ch.members.size === 0) {
-        await ch.delete();
-        return amount.splice(i, 1);
-      }
-    }
 });
 // Login into your client application with bot's token.
-
-client.login(token);
+async function startBot() {
+  try {
+    await client.login(token);
+    console.log(`Logged in as ${client.user.tag}`);
+  } catch (error) {
+    console.error('Error during login:', error);
+  }
+}
+(async () => {
+  await startBot();
+})();

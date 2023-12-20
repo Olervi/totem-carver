@@ -52,7 +52,7 @@ module.exports =  {
                     await reaction.message.guild.members.cache.get(user.id).roles.add(blueTeamRole);
                 }
             } else {
-                return;
+
             }
  
         });
@@ -73,7 +73,7 @@ module.exports =  {
                     await reaction.message.guild.members.cache.get(user.id).roles.remove(blueTeamRole);
                 }
             } else {
-                return;
+
             }
         });
     }

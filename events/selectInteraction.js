@@ -39,14 +39,14 @@ module.exports = {
 
 		try {
 			await command.execute(interaction);
-			return;
+
 		} catch (err) {
 			console.error(err);
 			await interaction.reply({
 				content: "There was an issue while executing that select menu option!",
 				ephemeral: true,
 			});
-			return;
+
 		}
 	},
 };

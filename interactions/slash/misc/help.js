@@ -70,13 +70,13 @@ module.exports = {
 						option.choices.forEach(choice => choices += choice + ", ");
 						choices = choices.slice(0, -2);
 						content += choices;
-					};
+					}
 					if (!option.required) content += "\n*Optional*";
 					helpEmbed.addField(option.name, content.trim(), true);
 				});
 			} else {
 				helpEmbed.setDescription(`No slash command with the name \`${name}\` found.`).setColor("YELLOW");
-			};
+			}
 		} else {
 			// Give a list of all the commands
 			helpEmbed
@@ -84,7 +84,7 @@ module.exports = {
 				.setDescription(
 					"`" + commands.map((command) => command.data.name).join("`, `") + "`"
 				);
-		};
+		}
 
 		// Replies to the interaction!
 

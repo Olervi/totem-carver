@@ -39,14 +39,14 @@ module.exports = {
 
 			try {
 				await command.execute(interaction);
-				return;
+
 			} catch (err) {
 				console.error(err);
 				await interaction.reply({
 					content: "There was an issue while executing that context command!",
 					ephemeral: true,
 				});
-				return;
+
 			}
 		}
 		// Checks if the interaction target was a user
@@ -64,14 +64,14 @@ module.exports = {
 
 			try {
 				await command.execute(interaction);
-				return;
+
 			} catch (err) {
 				console.error(err);
 				await interaction.reply({
 					content: "There was an issue while executing that context command!",
 					ephemeral: true,
 				});
-				return;
+
 			}
 		}
 

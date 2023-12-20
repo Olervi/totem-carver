@@ -17,6 +17,6 @@ module.exports = {
 		await interaction.reply({
 			content: "This was a reply from button handler!",
 		});
-		return;
+
 	},
 };
