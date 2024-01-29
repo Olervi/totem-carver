@@ -16,7 +16,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const Discord = require('discord.js');
 const { MessageEmbed } = require('discord.js');
-const { ContextMenuCommandBuilder } = require('@discordjs/builders');
+const { ContextMenuCommandBuilder, emojiValidator} = require('@discordjs/builders');
 const { default: TwitchApi } = require('node-twitch');
 const { config } = require('process');
 const { channel } = require('diagnostics_channel');
@@ -218,7 +218,10 @@ for (const folder of triggerFolders) {
     client.triggers.set(trigger.name, trigger);
   }
 }
-
+client.on("emojiCreate",( emojiValidator ) => {
+  const newEmoji = emojiValidator.id;
+  console.log(newEmoji);
+});
 client.on('message', (message) => {
   if (!message.content.startsWith('$') || message.author.bot) return;
 
@@ -250,7 +253,7 @@ client.on('voiceStateUpdate', async(oldMember, newMember) => {
                 'SPEAK',
                 'STREAM',
                 //'PRIORITY_SPEAKER',
-                'MANAGE_CHANNELS',
+                //'MANAGE_CHANNELS',
               ],
             },
           ],
