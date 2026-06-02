@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const {
     Client,
     GatewayIntentBits,
@@ -9,9 +11,10 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.GuildPresences,
     ]
 });
-const {TOKEN} = require('./config.json');
+const TOKEN = process.env.TOKEN;
 const {handleVoiceStateUpdate, handleButtonInteraction} = require('./voiceChannelManager');
 
 

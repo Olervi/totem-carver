@@ -1,4 +1,4 @@
-import {REST, Routes} from "discord.js";
+const {REST, Routes} = require("discord.js");
 
 const commands = [
     {
@@ -9,7 +9,7 @@ const commands = [
 const rest = new REST({version: '10'}).setToken(TOKEN);
 try {
     console.log('Started refreshing application (/) commands.');
-    await rest.put(Routes.applicationCOmmands(CLIENT_ID), {body: {commands}});
+    await rest.put(Routes.applicationCommands(CLIENT_ID), {body: {commands}});
 } catch (e) {
     console.error(e);
 }
