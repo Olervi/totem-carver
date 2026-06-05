@@ -22,10 +22,15 @@ client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 client.on('voiceStateUpdate', (oldState, newState) => {
+    // switch if config value is set to enable this feature
     handleVoiceStateUpdate(client, oldState, newState);
 });
 client.on("interactionCreate", async (interaction) => {
-    await handleButtonInteraction(interaction);
+    if (interaction.isModalSubmit()) {
+        await handleButtonInteraction(interaction);
+    } else {
+        await handleButtonInteraction(interaction);
+    }
 });
 
 client.login(TOKEN);
