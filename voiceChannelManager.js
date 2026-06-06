@@ -7,15 +7,10 @@ const {
     TextInputBuilder,
     TextInputStyle
 } = require('discord.js');
-const DEFAULT_CHANNEL_NAMES = {
-    '1290237362487689226': 'Chat 1',
-    '1290237397476577313': 'Chat 2',
-    '1290237424848474122': 'Chat 3'
-};
+
+const configManager = require('./configManager.js');
 
 const channelMessages = new Map();
-const MESSAGE_TIMEOUT_MS = 5 * 60 * 1000;
-const presenceCache = new Map();
 
 
 async function userCount(client, channelId) {
@@ -69,6 +64,13 @@ function buildButtonRow(detectedGames = []) { // Fallback auf leeres Array
 }
 
 async function handleVoiceStateUpdate(client, oldState, newState) {
+    if (!configManager.get('voiceManager.enabled')) return;
+
+    const trackedChannels = configManager.get('voiceManager.trackedChannels') ?? {};
+    const timeoutMinutes = configManager.get('voiceManager.timeoutMinutes') ?? 5;
+    const timeoutMs = timeoutMinutes * 60 * 1000;
+
+
     const member = newState.member;
     if (!member) return;
     const username = member.user.tag;
@@ -77,10 +79,10 @@ async function handleVoiceStateUpdate(client, oldState, newState) {
     if (!newState.channelId) {
         console.log(`${username} left ${oldState.channel?.name}`);
         const channel = oldState.channel;
-        if (channel && channel.members.size === 0 && DEFAULT_CHANNEL_NAMES[channel.id]) {
+        if (channel && channel.members.size === 0 && trackedChannels[channel.id]) {
             try {
-                await channel.setName(DEFAULT_CHANNEL_NAMES[channel.id]);
-                console.log(`Renamed back to: ${DEFAULT_CHANNEL_NAMES[channel.id]}`);
+                await channel.setName(trackedChannels[channel.id]);
+                console.log(`Renamed back to: ${trackedChannels[channel.id]}`);
             } catch (err) {
                 console.error('Failed to rename channel:', err);
             }
@@ -100,7 +102,7 @@ async function handleVoiceStateUpdate(client, oldState, newState) {
     }
 
     // User hat Channel betreten
-    if (!oldState.channelId && DEFAULT_CHANNEL_NAMES[newState.channelId]) {
+    if (!oldState.channelId && trackedChannels[newState.channelId]) {
         console.log(`${username} joined ${newState.channel?.name}`);
 
         setTimeout(async () => {
@@ -120,8 +122,8 @@ async function handleVoiceStateUpdate(client, oldState, newState) {
                 }
                 console.log(`Members with presence: ${presenceCount}/${channel.members.size}`);
 
-
-                const detectedGames = detectGamesFromCache(channel);
+                const gameDetectionEnabled = configManager.get('voiceManager.gameDetection');
+                const detectedGames = gameDetectionEnabled ? detectGamesFromCache(channel) : [];
 
                 console.log(`Detected games in ${channel.name}:`, detectedGames);
 
@@ -134,14 +136,17 @@ async function handleVoiceStateUpdate(client, oldState, newState) {
                 // Alternativ: in einen definierten Text-Channel
                 const sentMessage = await channel.send({content, components: [row]});
 
-                // Auto-Delete nach 5 Minuten
-                const timeout = setTimeout(async () => {
-                    try {
-                        await sentMessage.delete();
-                    } catch (_) {
-                    }
-                    channelMessages.delete(channel.id);
-                }, MESSAGE_TIMEOUT_MS);
+                // Auto-Delete
+                let timeout = null;
+                if (timeout > 0) {
+                    timeout = setTimeout(async () => {
+                        try {
+                            await sentMessage.delete();
+                        } catch (_) {
+                        }
+                        channelMessages.delete(channel.id);
+                    }, timeoutMs);
+                }
 
                 channelMessages.set(channel.id, {message: sentMessage, timeout});
             } catch (err) {
